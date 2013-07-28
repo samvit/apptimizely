@@ -55,7 +55,7 @@ function sendUpdate () {
     y: $("#y input").attr("value"),
     text: $("#text input").attr("value")
   }
-  socket.emit('updateElements', { data: payload });
+  socket.emit('updateElements', payload);
 }
 
 //dom click
