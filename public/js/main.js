@@ -32,15 +32,32 @@ var json = {
 function gen_editor (element_info) {
   //element_info is {x,y,width,height,text,color}
   return $("<div>", {id: "editor", }).append([
-      $("<input>", {value: "hello"}),
-      $("<input>", {id: "asdf", })
+      editor_row("height", element_info.height),
+      editor_row("x", element_info.x),
+      editor_row("width", element_info.width),
+      editor_row("y", element_info.y),
+      editor_row("text", element_info.text),
+      editor_row("color", element_info.color),
+      $("<button>", {value: "Update", onClick: sendUpdate})
       ]);
+}
+
+function sendUpdate () {
+  console.log("helli");
+}
+
+function editor_row (field, value) {
+  //element_info is {x,y,width,height,text,color}
+  return $("<div>", {id: field, }).html([
+      $("<span>", {text: field + ": "}),
+      $("<input>", {value: value})
+    ]);
 }
 
 function reload () {
   var $ios = gen_tree(json);
   $("div#ios").html($ios);
-  var $editor = gen_editor(editor);
+  var $editor = gen_editor({ width: 10, x: 30, height: 10, y: 10, color: "black" });
   $("div#editor").html($editor);
 }
 reload();
