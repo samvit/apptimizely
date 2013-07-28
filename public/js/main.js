@@ -30,9 +30,13 @@ g_uid_registry = {};
 // $div.click(function(){ /* ... */ });
 // $("div#main").html($div);
 
+function navigationMode(){
+  return $('#navigationMode').is(':checked');
+}
+
 function gen_editor (element_info) {
   //element_info is {x,y,width,height,text,color}
-  return $("<div>", {id: "editor", }).append([
+  return $("<div>", {id: "editorInner", }).append([
       editor_row("height", element_info.height),
       editor_row("x", element_info.x),
       editor_row("width", element_info.width),
@@ -67,7 +71,7 @@ function selectElement (uid) {
 
 function editor_row (field, value) {
   //element_info is {x,y,width,height,text,color}
-  return $("<div>", {id: field, }).html([
+  return $("<div>", {id: field}).html([
       $("<span>", {text: field + ": "}),
       $("<input>", {value: value})
       ]);
@@ -93,10 +97,19 @@ function generate_element(uid, width, x, height, y, image) {
     "height: " , height, "px;",
     "top: " , y, "px;",
     "background:url('", image, "');"].join(""),
-    onClick: "event.stopPropagation();selectElement('"+ uid + "')"
+    onClick: "event.stopPropagation();clickedElement('"+ uid + "', event)"
   });
 }
 
+function clickedElement(uid, event){
+  console.log(event);
+  if(navigationMode){
+    socket.emit('navigationClick', {'x': event.x, 'y': event.y});
+  }
+  else{
+    selectElement(uid);
+  }
+}
 //stores the element in the global registry
 function registerElement(uid, elem) {
   var desired_fields = {
