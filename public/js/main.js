@@ -123,7 +123,8 @@ function preprocessData(data, path) {
   if (data.children) {
     for (var i = 0; i<data.children.length; i++) {
       var type = data.children[i].class;
-      var nextPath = path + type + "|" + i + ";";
+      // var nextPath = path + type + "|" + i + ";";
+      var nextPath = path + "," + i;
       data.children[i] = preprocessData(data.children[i], nextPath);
     }
   }
