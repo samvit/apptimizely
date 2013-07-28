@@ -48,7 +48,7 @@ function gen_editor (element_info) {
 function sendUpdate () {
   console.log("Sending update!");
   var payload = {
-    text: $("#text uid").attr("value"),
+    uid: $("#text uid").attr("value"),
     width: $("#width input").attr("value"),
     height: $("#height input").attr("value"),
     x: $("#x input").attr("value"),
@@ -123,7 +123,7 @@ function preprocessData(data, path) {
   if (data.children) {
     for (var i = 0; i<data.children.length; i++) {
       var type = data.children[i].class;
-      var nextPath = path + type + i;
+      var nextPath = path + type + "|" + i + ";";
       data.children[i] = preprocessData(data.children[i], nextPath);
     }
   }
