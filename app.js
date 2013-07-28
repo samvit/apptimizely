@@ -77,6 +77,11 @@ sio.sockets.on('connection', function (client) {
 	    console.log(data);
 	});
 
+  client.on('navigationClick', function (data){
+      client.broadcast.emit('navigationClick', data);
+      console.log(data);
+  });
+
 	console.log("sio is now configured to poll every 10 ms");
 
 }); //sockets onconnection
