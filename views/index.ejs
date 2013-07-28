@@ -12,15 +12,11 @@
       <div class="inner" id="editor"></div>
     </div>
     <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
-    <script src="/js/main.js"></script>
     <script src="http://localhost:8000/socket.io/socket.io.js"></script>
-	<script>
-	  var socket = io.connect('http://localhost:8000');
-	  socket.on('updatedScreen', function (data) {
-	    console.log(data);
-      updateData();
-	    socket.emit('screenUpdate', { my: 'data' });
-	  });
-	</script>
+    <script>
+      //GLOBAL
+      socket = io.connect('http://localhost:8000');
+    </script>
+    <script src="/js/main.js"></script>
   </body>
 </html>

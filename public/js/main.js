@@ -23,6 +23,8 @@ var g_current_data = {
   }]
 };
 
+g_uid_registry = {};
+
 
 // var $div = generate_element(20, 30, 20, 50);
 // $div.click(function(){ /* ... */ });
@@ -36,14 +38,31 @@ function gen_editor (element_info) {
       editor_row("width", element_info.width),
       editor_row("y", element_info.y),
       editor_row("text", element_info.text),
-      editor_row("color", element_info.color),
-      $("<button>", {onClick: "sendUpdate("+ element_info.uid 
-        + ")"}).append("Update")
-        ]);
+      editor_row("uid", element_info.uid),
+      $("<button>", {onClick: "sendUpdate()"}).append("Update")
+      ]);
 }
 
-function sendUpdate (id) {
-  console.log("helli" + id);
+//User Event Handlers
+//button click
+function sendUpdate () {
+  console.log("Sending update!");
+  var payload = {
+    text: $("#text uid").attr("value"),
+    width: $("#width input").attr("value"),
+    height: $("#height input").attr("value"),
+    x: $("#x input").attr("value"),
+    y: $("#y input").attr("value"),
+    text: $("#text input").attr("value")
+  }
+  socket.emit('updateElements', { data: payload });
+}
+
+//dom click
+function selectElement (uid) {
+  console.log("selected: " + uid);
+  var $editor = gen_editor(g_uid_registry[uid]);
+  $("div#editor").html($editor);
 }
 
 function editor_row (field, value) {
@@ -55,7 +74,7 @@ function editor_row (field, value) {
 }
 
 function gen_tree (json) {
-  var node = generate_element(json.width, json.x, json.height, json.y, json.image);
+  var node = generate_element(json.uid, json.width, json.x, json.height, json.y, json.image);
   console.log("node", node);
   if (json.children) {
     var children = json.children.map(gen_tree);
@@ -64,19 +83,32 @@ function gen_tree (json) {
   return node;
 }
 
-function generate_element(width, x, height, y, image) {
+function generate_element(uid, width, x, height, y, image) {
   console.log("gen_element",width, x, height, y);
-  return $("<div>", {id: "foo", 
+  return $("<div>", {id: uid, 
     class: "a", 
     style: ["width: " , width , "px;",
     "position: absolute;",
     "left: " , x, "px;",
     "height: " , height, "px;",
     "top: " , y, "px;",
-    // "background-color: ", color, ";"].join("")
-    "background:url('", image, "');"].join("")
-    // "background:url('http://www.newildernesstrust.org/wp-content/uploads/2013/04/Bird-300x250.jpg');"].join("")
+    "background:url('", image, "');"].join(""),
+    onClick: "event.stopPropagation();selectElement('"+ uid + "')"
   });
+}
+
+//stores the element in the global registry
+function registerElement(uid, elem) {
+  var desired_fields = {
+    width: elem.width,
+    height: elem.height,
+    x: elem.x,
+    y: elem.y,
+    image: elem.image,
+    text: elem.text,
+    uid: uid
+  };
+  g_uid_registry[uid] = desired_fields;
 }
 
 //gives each node a field 'uid' which is a unique
@@ -84,6 +116,10 @@ function generate_element(width, x, height, y, image) {
 //this node
 function preprocessData(data, path) {
   data.uid = path;
+
+  //populate registry
+  registerElement(data.uid, data);
+
   if (data.children) {
     for (var i = 0; i<data.children.length; i++) {
       var type = data.children[i].class;
@@ -95,6 +131,9 @@ function preprocessData(data, path) {
 }
 
 function updateData(data) {
+  //reset registry
+  g_uid_registry = {};
+  //this also repopulates the registry
   g_current_data = preprocessData(data, "");
   var $ios = gen_tree(g_current_data);
   $("div#ios").html($ios);
@@ -106,3 +145,10 @@ function main () {
   updateData(g_current_data);
 }
 main();
+
+//Sockets stuff here
+socket.on('screenUpdated', function (data) {
+  console.log("DATA RECEIVED");
+  updateData(data);
+});
+
